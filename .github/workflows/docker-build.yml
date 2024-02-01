@@ -1,0 +1,135 @@
+name: docker build
+on:
+  release:
+    types:
+      - released
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Select branch'
+        required: true
+        type: choice
+        options:
+        - master
+        - develop
+        - testing
+      tag:
+        description: 'Append a the tag with "-custom" e.g :develop-custom'
+  push:
+    branches:
+      - develop
+      - testing
+    paths-ignore:
+        - '.github/**'
+jobs:
+  build-and-push-it-to-the-limit:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        architecture: [linux-arm-v7,linux-arm64,linux-amd64]
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3.1.0
+        with:
+          fetch-depth: 0
+      - name: Prepare
+        id: prep
+        run: |
+          echo "ARCHITECTURE=${{ matrix.architecture }}" >> $GITHUB_ENV
+          echo "created=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
+          echo "title=${GITHUB_REPOSITORY,,}:${{ github.ref_name }}" >> $GITHUB_ENV
+          echo "revision=${GITHUB_SHA}" >> $GITHUB_ENV
+          echo "source=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY,,}/tree/${{ github.ref_name }}" >> $GITHUB_ENV
+          echo "vendor=${{ github.repository_owner }}" >> $GITHUB_ENV
+          echo "url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY,,}/blob/master/README.md" >> $GITHUB_ENV
+          echo "VERSION=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
+          echo "platform=${ARCHITECTURE//-/\/}" >> $GITHUB_ENV
+          echo "cache=${GITHUB_REPOSITORY,,}:${{ github.ref_name }}-cache-${{ matrix.architecture }}${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+          echo "tag=${GITHUB_REPOSITORY,,}:${{ github.ref_name }}-${GITHUB_SHA:0:7}-${GITHUB_RUN_NUMBER}-${{ matrix.architecture }}${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+          echo "release=${{ github.event.release.target_commitish }}" >> $GITHUB_ENV
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2.1.0
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2.2.1
+        with:
+          driver-opts: image=moby/buildkit:v0.10.5
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2.1.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GH_PAT }}
+
+      - name: build&push
+        uses: docker/build-push-action@v3.2.0
+        with:
+          push: ${{ github.event_name != 'pull_request' }}
+          platforms: ${{ env.platform }}
+          file: ./${{ matrix.architecture }}.Dockerfile
+          cache-from: ghcr.io/${{ env.cache }}
+          cache-to: ghcr.io/${{ env.cache }}
+          tags: |
+            ghcr.io/${{ env.tag }}
+          labels: |
+            org.opencontainers.image.created=${{ env.created }}
+            org.opencontainers.image.title=${{ env.title }}
+            org.opencontainers.image.revision=${{ env.revision }}
+            org.opencontainers.image.source=${{ env.source }}
+            org.opencontainers.image.vendor=${{ env.vendor }}
+            org.opencontainers.image.url=${{ env.url }}
+            org.opencontainers.image.version=${{ env.VERSION }}
+          build-args: |
+            TP_RELEASE=${{ env.VERSION }}
+            BUILD_DATE=${{ env.created }}
+            BUILD_ARCHITECTURE=${{ env.ARCHITECTURE }}
+
+  publish:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        registry: [ghcr.io]
+    needs: [build-and-push-it-to-the-limit]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
+
+      - name: Login to GitHub Container Registry
+        if: matrix.registry == 'ghcr.io'
+        uses: docker/login-action@v2.1.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GH_PAT }}
+
+      - name: Create manifests
+        env:
+          DOCKER_CLI_EXPERIMENTAL: enabled
+        run: |
+          IMAGE=${{ matrix.registry }}/${GITHUB_REPOSITORY,,}
+          TAG=${{ github.ref_name }}-${GITHUB_SHA:0:7}-${GITHUB_RUN_NUMBER}
+          SOURCE=${IMAGE}:${TAG}
+          [[ -f linux-amd64.Dockerfile ]]  && AMD64=${SOURCE}-linux-amd64${{ github.event.inputs.tag }}
+          [[ -f linux-arm64.Dockerfile ]]  && ARM64=${SOURCE}-linux-arm64${{ github.event.inputs.tag }}
+          [[ -f linux-arm-v7.Dockerfile ]] && ARMV7=${SOURCE}-linux-arm-v7${{ github.event.inputs.tag }}
+          docker manifest create ${IMAGE}:${TAG}${{ github.event.inputs.tag }} ${AMD64} ${ARM64} ${ARMV7}
+          docker manifest push ${IMAGE}:${TAG}${{ github.event.inputs.tag }}
+          TAG=${{ github.ref_name }}${{ github.event.inputs.tag }}
+          docker manifest create ${IMAGE}:${TAG} ${AMD64} ${ARM64} ${ARMV7}
+          docker manifest push ${IMAGE}:${TAG}
+      - name: Latest manifest
+        if: github.event.release.target_commitish == 'master' || github.event.inputs.branch == 'master'
+        env:
+          DOCKER_CLI_EXPERIMENTAL: enabled
+        run: |
+          IMAGE=${{ matrix.registry }}/${GITHUB_REPOSITORY,,}
+          TAG=${{ github.ref_name }}
+          SOURCE=${IMAGE}:${TAG}-${GITHUB_SHA:0:7}-${GITHUB_RUN_NUMBER}
+          [[ -f linux-amd64.Dockerfile ]] && AMD64=${SOURCE}-linux-amd64
+          [[ -f linux-arm64.Dockerfile ]] && ARM64=${SOURCE}-linux-arm64
+          [[ -f linux-arm-v7.Dockerfile ]] && ARMV7=${SOURCE}-linux-arm-v7
+          docker manifest create ${IMAGE}:latest ${AMD64} ${ARM64} ${ARMV7}
+          docker manifest push ${IMAGE}:latest

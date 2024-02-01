@@ -1,0 +1,27 @@
+@media (min-width: 752px) {
+    [class*="PageHeader-logoFull-"] {
+        content: url("/css/addons/radarr/radarr-4k-logo/radarr4k-v3.png");
+        margin-left: 15px;
+        width: 120px;
+        height: 40px;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    [class*="PageHeader-logo-"] {
+        width: 32px;
+        height: 32px;
+        margin-left: 0px;
+        content: url("/css/addons/radarr/radarr-4k-logo/radarr-v3-mobile.png");
+    }
+}
+
+[class*="LoadingPage-logoFull-"] {
+    content: url("/css/addons/radarr/radarr-4k-logo/radarr4k-v3.png");
+    margin-top: 50px;
+    margin-right: auto;
+    margin-left: auto;
+    width: 120px;
+    height: 40px;
+    opacity: 1;
+}

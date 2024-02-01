@@ -1,0 +1,7 @@
+    [class*="bazarr-"].bazarr-Avatar-image {
+        content: url("/css/addons/bazarr/bazarr-4k-logo/bazarr4k.png");
+    }
+
+    #root>div>header>div>div.bazarr-Group-root[class*="bazarr-"]>div>span:after {
+        content: " 4K";
+    }

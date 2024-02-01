@@ -1,0 +1,47 @@
+@import url("/css/defaults/servarr-darker-base.css");
+:root {
+    --main-bg-color: #202020;
+
+    --modal-bg-color: #2a2a2a;
+    --modal-header-color: #2a2a2a;
+    --modal-footer-color: #2a2a2a;
+
+    --drop-down-menu-bg: #333;
+
+    --button-color: #5899eb;
+    --button-color-hover: #4b91ea;
+    --button-text: #eee;
+    --button-text-hover: #fff;
+
+    --accent-color: 0, 166, 91;
+    --accent-color-hover: rgb(0, 166, 91, .8);
+    --link-color: rgb(0, 166, 91);
+    --link-color-hover: rgb(0, 166, 91, .8);
+    --label-text-color: #eee;
+
+    --text: #ccc;
+    --text-hover: #fff;
+    --text-muted: #999;
+
+    /*Specials*/
+    --arr-queue-color: #00a65b;
+    --side-menu-active: #333333;
+    --scroller-hover: #606060;
+    --scroller: #707070;
+    --border-color: #606060;
+    --label-color: #1d563d;
+    --label-info: #5d9cec;
+    --header-color: #2a2a2a;
+    --toolbar-background: #262626;
+    --side-menu-color: #2a2a2a;
+    --side-menu-link-color: #00a65b;
+}
+
+/* SEARCH DROP DOWN */
+
+[class*=ArtistSearchInput-containerOpen-] [class*=ArtistSearchInput-artistContainer-] {
+    border: 1px solid var(--main-bg-color);
+    background-color: var(--main-bg-color);
+    box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%);
+    color: #e1e2e3;
+}

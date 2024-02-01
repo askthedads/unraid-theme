@@ -1,0 +1,19 @@
+@media (min-width: 752px) {
+    [class*="PageHeader-logo-"] {
+        content: url("/css/addons/sonarr/sonarr-text-logo/sonarr-text.png");
+        margin-left: 15px;
+        width: 120px;
+        height: 40px;
+    }
+}
+
+
+[class*="LoadingPage-logoFull-"] {
+    content: url("/css/addons/sonarr/sonarr-text-logo/sonarr-text.png");
+    margin-top: 50px;
+    margin-right: auto;
+    margin-left: auto;
+    width: 120px;
+    height: 40px;
+    opacity: 1;
+}

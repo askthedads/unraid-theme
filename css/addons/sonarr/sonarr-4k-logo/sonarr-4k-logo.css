@@ -1,0 +1,16 @@
+@media (min-width: 752px) {
+    [class*="PageHeader-logo-"] {
+        content: url("/css/addons/sonarr/sonarr-4k-logo/sonarr-4k.png");
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    [class*="PageHeader-logo-"] {
+        content: url("/css/addons/sonarr/sonarr-4k-logo/sonarr-4k.png");
+    }
+}
+
+[class*="LoadingPage-logoFull-"] {
+    content: url("/css/addons/sonarr/sonarr-4k-logo/sonarr-4k.png");
+    opacity: 1;
+}

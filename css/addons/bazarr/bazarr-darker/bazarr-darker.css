@@ -1,0 +1,55 @@
+:root {
+    --main-bg-color: #202020;
+
+    --modal-bg-color: #2a2a2a;
+    --modal-header-color: #2a2a2a;
+    --modal-footer-color: #2a2a2a;
+
+    --drop-down-menu-bg: #333;
+
+    --button-color: #911f93;
+    --button-color-hover: #721873;
+    --button-text: #eee;
+    --button-text-hover: #fff;
+
+    --accent-color: 145, 31, 147;
+    --accent-color-hover: rgb(var(--accent-color), .8);
+    --link-color: #b828bb;
+    --link-color-hover: #911f93;
+    --label-text-color: #eee;
+
+    --text: #ccc;
+    --text-hover: #fff;
+    --text-muted: #999;
+
+    /*Specials*/
+    --arr-queue-color: #6c757d;
+    --side-menu-active: #333333;
+    --side-menu-link-color: #fff;
+    --scroller-hover: #606060;
+    --scroller: #707070;
+    --border-color: #606060;
+    --label-color: #911f93;
+    --label-info: #5d9cec;
+    --header-color: #2a2a2a;
+    --toolbar-background: #262626;
+    --side-menu-color: #2a2a2a;
+}
+
+/* HEADER */
+.bazarr-Header-root[class*="bazarr-"] {
+    background-color: var(--header-color) !important;
+    border-bottom: 1px solid var(--transparency-light-15);
+}
+
+/* SIDE MENU */
+.bazarr-Navbar-root[class*="bazarr-"] {
+    background-color: var(--side-menu-color) !important;
+    color: white !important;
+}
+
+#root>div>div>main>div>div.bazarr-Group-root[class*="bazarr-"],
+#root>div>div>main>div>div>div.bazarr-Group-root[class*="bazarr-"],
+#root>div>div>main>form>div.bazarr-Group-root[class*="bazarr-"] {
+    background: #262626 !important;
+}
